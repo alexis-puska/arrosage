@@ -1,0 +1,40 @@
+{
+  "generator-jhipster": {
+    "promptValues": {
+      "packageName": "fr.iocean.arrosage"
+    },
+    "jhipsterVersion": "6.10.3",
+    "applicationType": "monolith",
+    "baseName": "arrosage",
+    "packageName": "fr.iocean.arrosage",
+    "packageFolder": "fr/iocean/arrosage",
+    "serverPort": "8080",
+    "authenticationType": "jwt",
+    "cacheProvider": "ehcache",
+    "enableHibernateCache": true,
+    "websocket": false,
+    "databaseType": "sql",
+    "devDatabaseType": "postgresql",
+    "prodDatabaseType": "postgresql",
+    "searchEngine": false,
+    "messageBroker": false,
+    "serviceDiscoveryType": false,
+    "buildTool": "maven",
+    "enableSwaggerCodegen": false,
+    "jwtSecretKey": "ODhkNjc2YjBjMTI2MDdlNWRjOGE4OTAyMWZkMmE1YzBjMDllMmIxOTI4ZGNkMzFjYjZiZDkyZjMzNDQ5Nzg2NWQ3Y2JjODhlNThiYmMwMTJjNzg0ZWJkN2Q1ZGUwMjM1MDg5NTI2MTIzZTk4MDg5NzVkNmU5NThmZjI3ODU5ZWY=",
+    "embeddableLaunchScript": false,
+    "useSass": true,
+    "clientPackageManager": "npm",
+    "clientFramework": "angularX",
+    "clientTheme": "none",
+    "clientThemeVariant": "",
+    "creationTimestamp": 1635946151278,
+    "testFrameworks": [],
+    "jhiPrefix": "jhi",
+    "entitySuffix": "",
+    "dtoSuffix": "DTO",
+    "otherModules": [],
+    "enableTranslation": false,
+    "blueprints": []
+  }
+}
