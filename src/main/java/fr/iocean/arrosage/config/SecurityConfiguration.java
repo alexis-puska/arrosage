@@ -1,8 +1,5 @@
 package fr.iocean.arrosage.config;
 
-import fr.iocean.arrosage.security.*;
-import fr.iocean.arrosage.security.jwt.*;
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpMethod;
@@ -18,6 +15,10 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
 import org.springframework.web.filter.CorsFilter;
 import org.zalando.problem.spring.web.advice.security.SecurityProblemSupport;
+
+import fr.iocean.arrosage.security.AuthoritiesConstants;
+import fr.iocean.arrosage.security.jwt.JWTConfigurer;
+import fr.iocean.arrosage.security.jwt.TokenProvider;
 
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)

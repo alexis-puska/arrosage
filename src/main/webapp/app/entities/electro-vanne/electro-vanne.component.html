@@ -1,0 +1,41 @@
+<div>
+    <h2>
+        <span id="user-management-page-heading">Zone d'arosage</span>
+    </h2>
+
+    <jhi-alert-error></jhi-alert-error>
+
+    <jhi-alert></jhi-alert>
+
+    <button class="btn btn-warning btn-sm" (click)="cancelAll()">Tout éteindre</button>
+
+    <button class="btn btn-success btn-sm" (click)="load()">Rafraichir</button>
+
+    <div class="table-responsive" *ngIf="relays">
+        <table class="table table-striped" aria-describedby="user-management-page-heading">
+            <thead>
+                <tr>
+                    <th scope="col"><span>N</span></th>
+                    <th scope="col"><span>Zone</span></th>
+                    <th scope="col"><span>heure estimée</span></th>
+                    <th scope="col"><span>Status</span> </th>
+                </tr>
+            </thead>
+            <tbody *ngIf="relays">
+                <tr *ngFor="let relay of relays">
+                    <td>{{ relay.relay }}</td>
+                    <td>{{ relay.zone }}</td>
+                    <td>{{ relay.estimatedHours | date:'dd/MM/yy HH:mm:ss' }}</td>
+                    <td>
+                        <button class="btn btn-danger btn-sm" (click)="open(relay.relay)"
+                            *ngIf="!relay.on">Deactivated</button>
+                        <button class="btn btn-success btn-sm" (click)="close(relay.relay)"
+                            *ngIf="relay.on">Activated</button>
+                        <button class="btn btn-warning btn-sm" (click)="open(relay.relay)"
+                            *ngIf="relay.on">Prolonger</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
