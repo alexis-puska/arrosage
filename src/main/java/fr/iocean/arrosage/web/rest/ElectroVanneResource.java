@@ -29,15 +29,27 @@ public class ElectroVanneResource {
 	}
 
 	@GetMapping("/electro-vanne/open/{id}")
-	public void openVanne(@PathVariable("id") Integer relay) {
-		this.log.debug("Ouverture vanne : ", relay);
-		this.electroVanneService.openVanne(relay);
+	public void openVanne(@PathVariable("id") int id) {
+		this.log.debug("Ouverture vanne : ", id);
+		this.electroVanneService.openVanneScheduled(id);
 	}
 
 	@GetMapping("/electro-vanne/close/{id}")
-	public void closeVanne(@PathVariable("id") Integer relay) {
-		this.log.debug("Fermeture vanne : ", relay);
-		this.electroVanneService.closeVanne(relay);
+	public void closeVanne(@PathVariable("id") int id) {
+		this.log.debug("Fermeture vanne : ", id);
+		this.electroVanneService.closeVanneScheduled(id);
+	}
+
+	@GetMapping("/electro-vanne/add-time/{id}")
+	public void addTime(@PathVariable("id") int id) {
+		this.log.debug("Ouverture vanne : ", id);
+		this.electroVanneService.addTime(id);
+	}
+
+	@GetMapping("/electro-vanne/cancel/{id}")
+	public void cancel(@PathVariable("id") int id) {
+		this.log.debug("Ouverture vanne : ", id);
+		this.electroVanneService.cancel(id);
 	}
 
 	@GetMapping("/electro-vanne/status")

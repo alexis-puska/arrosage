@@ -9,15 +9,15 @@ import org.slf4j.LoggerFactory;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
-public class AutoCloseVanneTask extends TimerTask {
+public class AutoStopVanneTask extends TimerTask {
 
-	private final Logger log = LoggerFactory.getLogger(AutoCloseVanneTask.class);
+	private final Logger log = LoggerFactory.getLogger(AutoStopVanneTask.class);
 
 	private int relay;
 	private ElectroVanneService electroVanneService;
 
 	public void run() {
 		log.info("Fermeture automatique vanne : {}, à : {}", relay, LocalDateTime.now().toString());
-		this.electroVanneService.closeVanne(this.relay);
+		this.electroVanneService.closeVanneByTask(this.relay);
 	}
 }

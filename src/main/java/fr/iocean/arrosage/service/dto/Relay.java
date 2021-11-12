@@ -1,6 +1,8 @@
 package fr.iocean.arrosage.service.dto;
 
 import java.io.Serializable;
+import java.time.Instant;
+import java.util.concurrent.ScheduledFuture;
 
 import com.pi4j.io.gpio.digital.DigitalOutput;
 
@@ -17,7 +19,11 @@ public class Relay implements Serializable {
 
 	private static final long serialVersionUID = 8798629590939511863L;
 
-	private int relay;
+	private int id;
 	private String zone;
 	private DigitalOutput conf;
+	private Instant startHours;
+	private ScheduledFuture<?> start;
+	private Instant stopHours;
+	private ScheduledFuture<?> stop;
 }

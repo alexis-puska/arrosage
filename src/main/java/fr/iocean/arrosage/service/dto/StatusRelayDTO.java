@@ -3,6 +3,7 @@ package fr.iocean.arrosage.service.dto;
 import java.io.Serializable;
 import java.time.Instant;
 
+import fr.iocean.arrosage.RelayStatusEnum;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -14,9 +15,10 @@ public class StatusRelayDTO implements Serializable {
 
 	private static final long serialVersionUID = 7096062524743069455L;
 
-	private int relay;
+	private int id;
 	private String zone;
-	private boolean on;
+	private RelayStatusEnum Status;
 	private Long remainingTime;
-	private Instant estimatedHours;
+	private Instant estimatedStopHours;
+	private Instant estimatedStartHours;
 }

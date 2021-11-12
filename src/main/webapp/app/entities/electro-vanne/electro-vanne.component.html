@@ -7,32 +7,40 @@
 
     <jhi-alert></jhi-alert>
 
-    <button class="btn btn-warning btn-sm" (click)="cancelAll()">Tout éteindre</button>
+    <button class="btn btn-danger btn-sm" (click)="cancelAll()">Tout éteindre</button>
 
-    <button class="btn btn-success btn-sm" (click)="load()">Rafraichir</button>
+    <button class="btn btn-info btn-sm" (click)="load()">Rafraichir</button>
 
     <div class="table-responsive" *ngIf="relays">
         <table class="table table-striped" aria-describedby="user-management-page-heading">
             <thead>
                 <tr>
-                    <th scope="col"><span>N</span></th>
                     <th scope="col"><span>Zone</span></th>
-                    <th scope="col"><span>heure estimée</span></th>
-                    <th scope="col"><span>Status</span> </th>
+                    <th scope="col"><span>Status</span></th>
+                    <th scope="col"><span>Allumage</span></th>
+                    <th scope="col"><span>Extinction</span></th>
+                    <th scope="col"><span>Action</span></th>
                 </tr>
             </thead>
             <tbody *ngIf="relays">
                 <tr *ngFor="let relay of relays">
-                    <td>{{ relay.relay }}</td>
                     <td>{{ relay.zone }}</td>
-                    <td>{{ relay.estimatedHours | date:'dd/MM/yy HH:mm:ss' }}</td>
                     <td>
-                        <button class="btn btn-danger btn-sm" (click)="open(relay.relay)"
-                            *ngIf="!relay.on">Deactivated</button>
-                        <button class="btn btn-success btn-sm" (click)="close(relay.relay)"
-                            *ngIf="relay.on">Activated</button>
-                        <button class="btn btn-warning btn-sm" (click)="open(relay.relay)"
-                            *ngIf="relay.on">Prolonger</button>
+                        <span *ngIf="relay.status === 'ON'" class="badge badge-success">ON</span>
+                        <span *ngIf="relay.status === 'OFF'" class="badge badge-danger">OFF</span>
+                        <span *ngIf="relay.status === 'WAIT'" class="badge badge-info">WAIT</span>
+                    </td>
+                    <td>{{ relay.estimatedStartHours | date:'dd/MM/yy HH:mm:ss' }}</td>
+                    <td>{{ relay.estimatedStopHours | date:'dd/MM/yy HH:mm:ss' }}</td>
+                    <td>
+                        <button class="btn btn-success btn-sm" (click)="open(relay.id)"
+                            *ngIf="relay.status === 'OFF'">Allumer</button>
+                        <button class="btn btn-danger btn-sm" (click)="close(relay.id)"
+                            *ngIf="relay.status === 'ON'">Eteindre</button>
+                        <button class="btn btn-info btn-sm" (click)="addTime(relay.id)"
+                            *ngIf="relay.status === 'WAIT' || relay.status === 'ON'" [disabled]="lockProlongation">Prolonger</button>
+                        <button class="btn btn-warning btn-sm" (click)="cancel(relay.id)"
+                            *ngIf="relay.status === 'WAIT'">Annuler</button>
                     </td>
                 </tr>
             </tbody>

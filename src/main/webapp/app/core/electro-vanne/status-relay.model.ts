@@ -1,13 +1,21 @@
 import { Moment } from 'moment';
 
 export interface IStatusRelay {
-  relay: number;
+  id: number;
   zone: string;
-  on: boolean;
+  status: string;
   remainingTime: number;
-  estimatedHours: Date;
+  estimatedStopHours: Date;
+  estimatedStartHours: Date;
 }
 
 export class StatusRelay implements IStatusRelay {
-  constructor(public relay: number, public zone: string, public on: boolean, public remainingTime: number, public estimatedHours: Date) {}
+  constructor(
+    public id: number,
+    public zone: string,
+    public status: string,
+    public remainingTime: number,
+    public estimatedStopHours: Date,
+    public estimatedStartHours: Date
+  ) {}
 }

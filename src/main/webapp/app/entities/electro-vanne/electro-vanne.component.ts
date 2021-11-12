@@ -10,9 +10,11 @@ import { StatusRelay } from './../../core/electro-vanne/status-relay.model';
 export class ElectroVanneComponent implements OnInit {
   relays: StatusRelay[] | null;
   timers: Subscription[] = [];
+  lockProlongation: boolean;
 
   constructor(private electroVanneService: ElectroVanneService) {
     this.relays = [];
+    this.lockProlongation = false;
   }
 
   ngOnInit(): void {
@@ -20,6 +22,7 @@ export class ElectroVanneComponent implements OnInit {
   }
 
   load(): void {
+    this.lockProlongation = false;
     this.timers.forEach(sub => {
       sub.unsubscribe();
     });
@@ -33,7 +36,15 @@ export class ElectroVanneComponent implements OnInit {
           const t = timer(r.remainingTime + 500);
           this.timers.push(
             t.subscribe(() => {
+              console.log('terminé load');
               this.load();
+            })
+          );
+          const timerLock = timer(r.remainingTime);
+          this.timers.push(
+            timerLock.subscribe(() => {
+              console.log('terminé lock');
+              this.lockProlongation = true;
             })
           );
         }
@@ -41,8 +52,8 @@ export class ElectroVanneComponent implements OnInit {
     });
   }
 
-  open(relay: number): void {
-    this.electroVanneService.open(relay).subscribe(
+  open(id: number): void {
+    this.electroVanneService.open(id).subscribe(
       () => {
         this.load();
       },
@@ -52,8 +63,30 @@ export class ElectroVanneComponent implements OnInit {
     );
   }
 
-  close(relay: number): void {
-    this.electroVanneService.close(relay).subscribe(
+  close(id: number): void {
+    this.electroVanneService.close(id).subscribe(
+      () => {
+        this.load();
+      },
+      () => {
+        this.load();
+      }
+    );
+  }
+
+  addTime(id: number): void {
+    this.electroVanneService.addTime(id).subscribe(
+      () => {
+        this.load();
+      },
+      () => {
+        this.load();
+      }
+    );
+  }
+
+  cancel(id: number): void {
+    this.electroVanneService.cancel(id).subscribe(
       () => {
         this.load();
       },

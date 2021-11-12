@@ -10,12 +10,20 @@ export class ElectroVanneService {
 
   constructor(private http: HttpClient) {}
 
-  open(relay: number): Observable<void> {
-    return this.http.get<void>(`${this.resourceUrl}/open/${relay}`);
+  open(id: number): Observable<void> {
+    return this.http.get<void>(`${this.resourceUrl}/open/${id}`);
   }
 
-  close(relay: number): Observable<void> {
-    return this.http.get<void>(`${this.resourceUrl}/close/${relay}`);
+  close(id: number): Observable<void> {
+    return this.http.get<void>(`${this.resourceUrl}/close/${id}`);
+  }
+
+  addTime(id: number): Observable<void> {
+    return this.http.get<void>(`${this.resourceUrl}/add-time/${id}`);
+  }
+
+  cancel(id: number): Observable<void> {
+    return this.http.get<void>(`${this.resourceUrl}/cancel/${id}`);
   }
 
   status(): Observable<HttpResponse<StatusRelay[]>> {

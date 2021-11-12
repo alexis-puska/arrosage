@@ -1,6 +1,7 @@
 package fr.iocean.arrosage.service;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,6 +24,7 @@ import com.pi4j.io.gpio.digital.DigitalOutputConfigBuilder;
 import com.pi4j.io.gpio.digital.DigitalState;
 import com.pi4j.platform.Platforms;
 
+import fr.iocean.arrosage.RelayStatusEnum;
 import fr.iocean.arrosage.service.dto.Relay;
 import fr.iocean.arrosage.service.dto.StatusRelayDTO;
 
@@ -31,13 +33,13 @@ public class ElectroVanneService {
 
 	private final Logger log = LoggerFactory.getLogger(ElectroVanneService.class);
 
-	private static final long tempsArrosageInMs = 10000;
+	private static final long TEMPS_ARROSAGE = 4000;
+	private static final long TEMPS_SECURITE = 1000;
 
 	private final ScheduledExecutorService executor;
 	private final Context pi4j;
 	private final Platforms platforms;
 	private Map<Integer, Relay> relays;
-	private Map<Integer, ScheduledFuture<?>> timers;
 
 	public ElectroVanneService() {
 		this.executor = Executors.newSingleThreadScheduledExecutor();
@@ -45,7 +47,6 @@ public class ElectroVanneService {
 		this.platforms = pi4j.platforms();
 		this.platforms.describe().print(System.out);
 		this.relays = new HashMap<>();
-		this.timers = new HashMap<>();
 		this.initPinConfig(1, "portail", 29);
 		this.initPinConfig(2, "piscine", 31);
 		this.initPinConfig(3, "pergolas", 33);
@@ -57,82 +58,150 @@ public class ElectroVanneService {
 		DigitalOutputConfigBuilder ledConfig = DigitalOutput.newConfigBuilder(pi4j).id("relay" + relay)
 				.name("relay" + relay).address(pin).shutdown(DigitalState.LOW).initial(DigitalState.LOW);
 		DigitalOutput conf = pi4j.create(ledConfig);
-		this.relays.put(relay, new Relay(relay, zone, conf));
+		this.relays.put(relay, new Relay(relay, zone, conf, null, null, null, null));
 	}
 
-	public synchronized void openVanne(int relay) {
-		this.relays.get(relay).getConf().high();
-		ScheduledFuture<?> ft = this.timers.get(relay);
-		if (ft == null || ft.isDone()) {
-			log.info("pas de timer ou timer terminé : creation");
-			ft = executor.schedule(new AutoCloseVanneTask(relay, this), tempsArrosageInMs, TimeUnit.MILLISECONDS);
-		} else if (!ft.isDone()) {
-			log.info("timer present : ajout de temps");
-			long remainingTime = ft.getDelay(TimeUnit.MILLISECONDS);
-			if (ft.cancel(true)) {
-				ft = executor.schedule(new AutoCloseVanneTask(relay, this), tempsArrosageInMs + remainingTime,
-						TimeUnit.MILLISECONDS);
+	public synchronized void openVanneScheduled(int id) {
+		long decallage = 0;
+		Instant start = getNextStart();
+		if (start == null) {
+			// allumage immédiat !
+			this.relays.get(id).getConf().high();
+		} else {
+			start = start.plusMillis(TEMPS_SECURITE);
+			decallage = Math.abs(start.until(Instant.now(), ChronoUnit.MILLIS));
+			this.relays.get(id).setStartHours(start);
+			ScheduledFuture<?> ft = executor.schedule(new AutoStartVanneTask(id, this), decallage,
+					TimeUnit.MILLISECONDS);
+			this.relays.get(id).setStart(ft);
+		}
+		this.relays.get(id).setStopHours(Instant.now().plusMillis(TEMPS_ARROSAGE + decallage));
+		ScheduledFuture<?> ft = executor.schedule(new AutoStopVanneTask(id, this), TEMPS_ARROSAGE + decallage,
+				TimeUnit.MILLISECONDS);
+		this.relays.get(id).setStop(ft);
+	}
+
+	public synchronized void closeVanneScheduled(int id) {
+		Relay relay = this.relays.get(id);
+		this.cancelRelay(relay);
+	}
+
+	public synchronized void addTime(int id) {
+		for (Relay relay : this.relays.values()) {
+			if (relay.getStart() != null && !relay.getStart().isDone()) {
+				relay.getStart().cancel(true);
+			}
+			if (relay.getStop() != null && !relay.getStop().isDone()) {
+				relay.getStop().cancel(true);
 			}
 		}
-		this.timers.put(relay, ft);
-	}
+		Relay r = this.relays.get(id);
 
-	public synchronized void closeVanne(int relay) {
-		this.relays.get(relay).getConf().low();
-		if (timers.containsKey(relay)) {
-			ScheduledFuture<?> ft = this.timers.get(relay);
-			if (ft.isDone()) {
-				log.info("close vanne timer terminé : suppresion");
-				this.timers.remove(relay);
-			} else if (!ft.isDone()) {
-				long remainingTime = ft.getDelay(TimeUnit.MILLISECONDS);
-				log.info("timer present : {} ms restant", remainingTime);
-				if (ft.cancel(true)) {
-					log.info("close vanne timer terminé : suppresion");
-					this.timers.remove(relay);
+		for (Relay relay : this.relays.values()) {
+			if (relay.getId() != id) {
+				if (relay.getStartHours() != null && relay.getStartHours().isAfter(r.getStopHours())) {
+					relay.setStartHours(relay.getStartHours().plusMillis(TEMPS_ARROSAGE));
+				}
+				if (relay.getStopHours() != null && relay.getStopHours().isAfter(r.getStopHours())) {
+					relay.setStopHours(relay.getStopHours().plusMillis(TEMPS_ARROSAGE));
 				}
 			}
 		}
+		r.setStopHours(r.getStopHours().plusMillis(TEMPS_ARROSAGE));
+
+		for (Relay relay : this.relays.values()) {
+			if (relay.getStartHours() != null) {
+				long decallage = Math.abs(relay.getStartHours().until(Instant.now(), ChronoUnit.MILLIS));
+				ScheduledFuture<?> ft = executor.schedule(new AutoStartVanneTask(relay.getId(), this), decallage,
+						TimeUnit.MILLISECONDS);
+				relay.setStart(ft);
+			}
+			if (relay.getStopHours() != null) {
+				long decallage = Math.abs(relay.getStopHours().until(Instant.now(), ChronoUnit.MILLIS));
+				ScheduledFuture<?> ft = executor.schedule(new AutoStopVanneTask(relay.getId(), this), decallage,
+						TimeUnit.MILLISECONDS);
+				relay.setStop(ft);
+			}
+		}
 	}
 
-	public void cancelAll() {
-		this.timers.entrySet().stream().forEach(entry -> {
-			if (entry.getValue() != null && !entry.getValue().isDone()) {
-				entry.getValue().cancel(true);
-			}
-		});
-		this.relays.entrySet().stream().forEach(entry -> {
-			entry.getValue().getConf().low();
-		});
-
+	public synchronized void cancel(int id) {
+		Relay relay = this.relays.get(id);
+		if (relay.getStopHours() == null) {
+			log.info("Can't cancel a scheduled relay without end hours");
+		} else {
+			this.cancelRelay(relay);
+		}
 	}
 
 	public List<StatusRelayDTO> getStatus() {
 		return relays.entrySet().stream().map(entry -> {
 			StatusRelayDTO dto = new StatusRelayDTO();
-			int relay = entry.getValue().getRelay();
-			dto.setRelay(relay);
+			Relay relay = entry.getValue();
+			dto.setId(relay.getId());
 			dto.setZone(entry.getValue().getZone());
-			dto.setOn(entry.getValue().getConf().isHigh());
-			if (this.timers.containsKey(relay)) {
-				ScheduledFuture<?> t = this.timers.get(relay);
-				if (!t.isDone()) {
-					long delai = t.getDelay(TimeUnit.MILLISECONDS);
-					dto.setRemainingTime(delai);
-					dto.setEstimatedHours(Instant.now().plusMillis(delai));
-				} else {
-					dto.setRemainingTime(null);
-				}
+			if (entry.getValue().getConf().isHigh()) {
+				dto.setRemainingTime(Instant.now().until(relay.getStopHours(), ChronoUnit.MILLIS));
+				dto.setStatus(RelayStatusEnum.ON);
+			} else if (relay.getStartHours() != null) {
+				dto.setRemainingTime(Instant.now().until(relay.getStartHours(), ChronoUnit.MILLIS));
+				dto.setStatus(RelayStatusEnum.WAIT);
 			} else {
-				dto.setRemainingTime(null);
+				dto.setStatus(RelayStatusEnum.OFF);
 			}
+			dto.setEstimatedStartHours(relay.getStartHours());
+			dto.setEstimatedStopHours(relay.getStopHours());
 			return dto;
-		}).sorted((v1, v2) -> v1.getRelay() - v2.getRelay()).collect(Collectors.toList());
+		}).sorted((v1, v2) -> v1.getId() - v2.getId()).collect(Collectors.toList());
+	}
+
+	public void cancelAll() {
+		this.relays.entrySet().forEach(entry -> {
+			this.cancelRelay(entry.getValue());
+		});
+	}
+
+	private void cancelRelay(Relay relay) {
+
+		if (relay.getStart() != null && !relay.getStart().isDone()) {
+			relay.getStart().cancel(true);
+		}
+		if (relay.getStop() != null && !relay.getStop().isDone()) {
+			relay.getStop().cancel(true);
+		}
+		relay.setStart(null);
+		relay.setStop(null);
+		relay.setStartHours(null);
+		relay.setStopHours(null);
+		relay.getConf().low();
+	}
+
+	private Instant getNextStart() {
+		Instant next = null;
+		for (Relay relay : this.relays.values()) {
+			if (relay.getStop() != null) {
+				if (next == null || relay.getStopHours().isAfter(next)) {
+					next = relay.getStopHours();
+				}
+			}
+		}
+		return next;
+	}
+
+	public void openVanneByTask(int id) {
+		this.relays.get(id).getConf().high();
+		this.relays.get(id).setStart(null);
+		this.relays.get(id).setStartHours(null);
+	}
+
+	public void closeVanneByTask(int id) {
+		this.relays.get(id).getConf().low();
+		this.relays.get(id).setStop(null);
+		this.relays.get(id).setStopHours(null);
 	}
 
 	@PreDestroy
 	public void destroy() {
 		this.pi4j.shutdown();
 	}
-
 }
