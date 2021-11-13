@@ -22,9 +22,8 @@ public class ElectroVanneResource {
 	private final Logger log = LoggerFactory.getLogger(ElectroVanneResource.class);
 
 	private final ElectroVanneService electroVanneService;
-
+	
 	public ElectroVanneResource(ElectroVanneService electroVanneService) {
-
 		this.electroVanneService = electroVanneService;
 	}
 
@@ -54,11 +53,7 @@ public class ElectroVanneResource {
 
 	@GetMapping("/electro-vanne/status")
 	public List<StatusRelayDTO> getStatus() {
-		List<StatusRelayDTO> statusVanne = this.electroVanneService.getStatus();
-		log.info("----------------------------------------------------------------------------------------------");
-		statusVanne.stream().forEach(status -> log.info("zone : {}", status));
-		log.info("----------------------------------------------------------------------------------------------");
-		return statusVanne;
+		return this.electroVanneService.getStatus();
 	}
 
 	@GetMapping("/electro-vanne/cancel-all")

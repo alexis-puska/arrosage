@@ -10,9 +10,11 @@ import fr.iocean.arrosage.RelayStatusEnum;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 @Getter
 @Setter
+@ToString
 @NoArgsConstructor
 public class StatusRelayDTO implements Serializable {
 
@@ -25,18 +27,21 @@ public class StatusRelayDTO implements Serializable {
 	private Instant estimatedStopHours;
 	private Instant estimatedStartHours;
 
-	@Override
-	public String toString() {
+	public String printInfo() {
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
 		String value = id + " " + zone + " : " + Status + "\t";
 		if (estimatedStartHours != null) {
-			value += "départ : " + formatter.format(LocalDateTime.ofInstant(estimatedStartHours, ZoneOffset.UTC))
-					+ "\t";
+			value += "| départ : " + formatter.format(LocalDateTime.ofInstant(estimatedStartHours, ZoneOffset.UTC))
+					+ " ";
+		} else {
+			value += "|                              ";
 		}
 		if (estimatedStopHours != null) {
-			value += "arrêt  : " + formatter.format(LocalDateTime.ofInstant(estimatedStopHours, ZoneOffset.UTC));
+			value += "| arrêt  : " + formatter.format(LocalDateTime.ofInstant(estimatedStopHours, ZoneOffset.UTC))
+					+ " ";
+		} else {
+			value += "|                              ";
 		}
 		return value;
 	}
-
 }

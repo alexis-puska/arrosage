@@ -1,6 +1,9 @@
 package fr.iocean.arrosage.service;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.List;
@@ -33,6 +36,7 @@ import fr.iocean.arrosage.service.dto.StatusRelayDTO;
 public class ElectroVanneService {
 
 	private final Logger log = LoggerFactory.getLogger(ElectroVanneService.class);
+	private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
 
 	private final long tempsArrosage;
 	private final long tempsSecurite;
@@ -52,11 +56,18 @@ public class ElectroVanneService {
 		this.platforms = pi4j.platforms();
 		this.platforms.describe().print(System.out);
 		this.relays = new HashMap<>();
+		this.log.info("+-----------------------------------+");
+		this.log.info("| initialisation relays !           |");
+		this.log.info("+-----------------------------------+");
 		this.initPinConfig(1, "portail        ", 29);
 		this.initPinConfig(2, "piscine        ", 31);
 		this.initPinConfig(3, "pergolas       ", 33);
 		this.initPinConfig(4, "abris          ", 34);
 		this.initPinConfig(5, "Goutte à goutte", 35);
+		this.log.info("+-----------------------------------+");
+		this.log.info("| initialisation relays terminées ! |");
+		this.log.info("+-----------------------------------+");
+
 	}
 
 	private void initPinConfig(int relay, String zone, int pin) {
@@ -64,6 +75,7 @@ public class ElectroVanneService {
 				.name("relay" + relay).address(pin).shutdown(DigitalState.LOW).initial(DigitalState.LOW);
 		DigitalOutput conf = pi4j.create(ledConfig);
 		this.relays.put(relay, new Relay(relay, zone, conf, null, null, null, null));
+		this.log.info("nouvelle zone : {} {}", relay, zone);
 	}
 
 	public synchronized void openVanneScheduled(int id) {
@@ -76,7 +88,8 @@ public class ElectroVanneService {
 		} else {
 			start = start.plusMillis(tempsSecurite);
 			decallage = Math.abs(start.until(Instant.now(), ChronoUnit.MILLIS));
-			this.log.info("ouverture différée vanne : {}, à : {}", id, start);
+			this.log.info("ouverture différée vanne : {}, à : {}", id,
+					formatter.format(LocalDateTime.ofInstant(start, ZoneOffset.UTC)));
 			this.relays.get(id).setStartHours(start);
 			ScheduledFuture<?> ft = executor.schedule(new AutoStartVanneTask(id, this), decallage,
 					TimeUnit.MILLISECONDS);
@@ -86,11 +99,13 @@ public class ElectroVanneService {
 		ScheduledFuture<?> ft = executor.schedule(new AutoStopVanneTask(id, this), tempsArrosage + decallage,
 				TimeUnit.MILLISECONDS);
 		this.relays.get(id).setStop(ft);
+		this.logStatus();
 	}
 
 	public synchronized void closeVanneScheduled(int id) {
 		Relay relay = this.relays.get(id);
 		this.cancelRelay(relay);
+		this.logStatus();
 	}
 
 	public synchronized void addTime(int id) {
@@ -130,6 +145,7 @@ public class ElectroVanneService {
 				relay.setStop(ft);
 			}
 		}
+		this.logStatus();
 	}
 
 	public synchronized void cancel(int id) {
@@ -139,6 +155,7 @@ public class ElectroVanneService {
 		} else {
 			this.cancelRelay(relay);
 		}
+		this.logStatus();
 	}
 
 	public List<StatusRelayDTO> getStatus() {
@@ -166,6 +183,7 @@ public class ElectroVanneService {
 		this.relays.entrySet().forEach(entry -> {
 			this.cancelRelay(entry.getValue());
 		});
+		this.logStatus();
 	}
 
 	private void cancelRelay(Relay relay) {
@@ -199,12 +217,34 @@ public class ElectroVanneService {
 		this.relays.get(id).getConf().high();
 		this.relays.get(id).setStart(null);
 		this.relays.get(id).setStartHours(null);
+		this.logStatus();
 	}
 
 	public void closeVanneByTask(int id) {
 		this.relays.get(id).getConf().low();
 		this.relays.get(id).setStop(null);
 		this.relays.get(id).setStopHours(null);
+		this.logStatus();
+	}
+
+	private void logStatus() {
+		log.info("+-------------------------------------------------------------------------------------------------+");
+		this.getStatus().stream().sorted((r1, r2) -> {
+			if (r1.getEstimatedStopHours() == null) {
+				return -1;
+			}
+			if (r2.getEstimatedStopHours() == null) {
+				return 0;
+			}
+			if (r1.getEstimatedStopHours().isBefore(r2.getEstimatedStopHours())) {
+				return -1;
+			}
+			if (r1.getEstimatedStopHours().isAfter(r2.getEstimatedStopHours())) {
+				return 1;
+			}
+			return 0;
+		}).forEach(status -> log.info("| zone : {} |", status.printInfo()));
+		log.info("+-------------------------------------------------------------------------------------------------+");
 	}
 
 	@PreDestroy
