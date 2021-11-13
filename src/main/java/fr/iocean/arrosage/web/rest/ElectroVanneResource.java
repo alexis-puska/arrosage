@@ -54,8 +54,9 @@ public class ElectroVanneResource {
 
 	@GetMapping("/electro-vanne/status")
 	public List<StatusRelayDTO> getStatus() {
-		this.log.debug("getStatus");
-		return this.electroVanneService.getStatus();
+		List<StatusRelayDTO> status = this.electroVanneService.getStatus();
+		this.log.info("Status : {}", status);
+		return status;
 	}
 
 	@GetMapping("/electro-vanne/cancel-all")
