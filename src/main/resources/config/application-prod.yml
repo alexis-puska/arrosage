@@ -35,7 +35,7 @@ spring:
     type: com.zaxxer.hikari.HikariDataSource
     url: jdbc:postgresql://localhost:5432/arrosage
     username: arrosage
-    password:
+    password: arrosage
     hikari:
       poolName: Hikari
       auto-commit: false
@@ -130,4 +130,6 @@ jhipster:
 # https://www.jhipster.tech/common-application-properties/
 # ===================================================================
 
-# application:
+application:
+  temps-arrosage: 300000
+  temps-securite: 2000

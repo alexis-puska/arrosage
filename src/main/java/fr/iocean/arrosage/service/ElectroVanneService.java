@@ -25,6 +25,7 @@ import com.pi4j.io.gpio.digital.DigitalState;
 import com.pi4j.platform.Platforms;
 
 import fr.iocean.arrosage.RelayStatusEnum;
+import fr.iocean.arrosage.config.ApplicationProperties;
 import fr.iocean.arrosage.service.dto.Relay;
 import fr.iocean.arrosage.service.dto.StatusRelayDTO;
 
@@ -33,15 +34,19 @@ public class ElectroVanneService {
 
 	private final Logger log = LoggerFactory.getLogger(ElectroVanneService.class);
 
-	private static final long TEMPS_ARROSAGE = 4000;
-	private static final long TEMPS_SECURITE = 1000;
+	private final long tempsArrosage;
+	private final long tempsSecurite;
 
+	private final ApplicationProperties applicationProperties;
 	private final ScheduledExecutorService executor;
 	private final Context pi4j;
 	private final Platforms platforms;
 	private Map<Integer, Relay> relays;
 
-	public ElectroVanneService() {
+	public ElectroVanneService(ApplicationProperties applicationProperties) {
+		this.applicationProperties = applicationProperties;
+		this.tempsArrosage = this.applicationProperties.getTempsArrosage();
+		this.tempsSecurite = this.applicationProperties.getTempsSecurite();
 		this.executor = Executors.newSingleThreadScheduledExecutor();
 		this.pi4j = Pi4J.newAutoContext();
 		this.platforms = pi4j.platforms();
@@ -67,16 +72,18 @@ public class ElectroVanneService {
 		if (start == null) {
 			// allumage immédiat !
 			this.relays.get(id).getConf().high();
+			this.log.info("ouverture immediat vanne : {}", id);
 		} else {
-			start = start.plusMillis(TEMPS_SECURITE);
+			start = start.plusMillis(tempsSecurite);
 			decallage = Math.abs(start.until(Instant.now(), ChronoUnit.MILLIS));
+			this.log.info("ouverture différée vanne : {}, à : {}", id, start);
 			this.relays.get(id).setStartHours(start);
 			ScheduledFuture<?> ft = executor.schedule(new AutoStartVanneTask(id, this), decallage,
 					TimeUnit.MILLISECONDS);
 			this.relays.get(id).setStart(ft);
 		}
-		this.relays.get(id).setStopHours(Instant.now().plusMillis(TEMPS_ARROSAGE + decallage));
-		ScheduledFuture<?> ft = executor.schedule(new AutoStopVanneTask(id, this), TEMPS_ARROSAGE + decallage,
+		this.relays.get(id).setStopHours(Instant.now().plusMillis(tempsArrosage + decallage));
+		ScheduledFuture<?> ft = executor.schedule(new AutoStopVanneTask(id, this), tempsArrosage + decallage,
 				TimeUnit.MILLISECONDS);
 		this.relays.get(id).setStop(ft);
 	}
@@ -100,14 +107,14 @@ public class ElectroVanneService {
 		for (Relay relay : this.relays.values()) {
 			if (relay.getId() != id) {
 				if (relay.getStartHours() != null && relay.getStartHours().isAfter(r.getStopHours())) {
-					relay.setStartHours(relay.getStartHours().plusMillis(TEMPS_ARROSAGE));
+					relay.setStartHours(relay.getStartHours().plusMillis(tempsArrosage));
 				}
 				if (relay.getStopHours() != null && relay.getStopHours().isAfter(r.getStopHours())) {
-					relay.setStopHours(relay.getStopHours().plusMillis(TEMPS_ARROSAGE));
+					relay.setStopHours(relay.getStopHours().plusMillis(tempsArrosage));
 				}
 			}
 		}
-		r.setStopHours(r.getStopHours().plusMillis(TEMPS_ARROSAGE));
+		r.setStopHours(r.getStopHours().plusMillis(tempsArrosage));
 
 		for (Relay relay : this.relays.values()) {
 			if (relay.getStartHours() != null) {
