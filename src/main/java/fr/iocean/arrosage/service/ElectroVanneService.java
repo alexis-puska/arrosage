@@ -1,8 +1,8 @@
 package fr.iocean.arrosage.service;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
@@ -89,7 +89,7 @@ public class ElectroVanneService {
 			start = start.plusMillis(tempsSecurite);
 			decallage = Math.abs(start.until(Instant.now(), ChronoUnit.MILLIS));
 			this.log.info("ouverture différée vanne : {}, à : {}", id,
-					formatter.format(LocalDateTime.ofInstant(start, ZoneOffset.UTC)));
+					formatter.format(ZonedDateTime.ofInstant(start, ZoneOffset.systemDefault())));
 			this.relays.get(id).setStartHours(start);
 			ScheduledFuture<?> ft = executor.schedule(new AutoStartVanneTask(id, this), decallage,
 					TimeUnit.MILLISECONDS);
@@ -228,7 +228,7 @@ public class ElectroVanneService {
 	}
 
 	private void logStatus() {
-		log.info("+-------------------------------------------------------------------------------------------------+");
+		log.info("+------------------------------------------------------------------------------------------------+");
 		this.getStatus().stream().sorted((r1, r2) -> {
 			if (r1.getEstimatedStopHours() == null) {
 				return -1;
@@ -244,7 +244,7 @@ public class ElectroVanneService {
 			}
 			return 0;
 		}).forEach(status -> log.info("| zone : {} |", status.printInfo()));
-		log.info("+-------------------------------------------------------------------------------------------------+");
+		log.info("+------------------------------------------------------------------------------------------------+");
 	}
 
 	@PreDestroy

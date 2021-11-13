@@ -2,8 +2,8 @@ package fr.iocean.arrosage.service.dto;
 
 import java.io.Serializable;
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
 import fr.iocean.arrosage.RelayStatusEnum;
@@ -29,16 +29,16 @@ public class StatusRelayDTO implements Serializable {
 
 	public String printInfo() {
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
-		String value = id + " " + zone + " : " + Status + " \t";
+		String value = id + " " + zone + " | " + Status.getValueString();
 		if (estimatedStartHours != null) {
-			value += "| départ : " + formatter.format(LocalDateTime.ofInstant(estimatedStartHours, ZoneOffset.UTC))
-					+ " ";
+			value += "| départ : "
+					+ formatter.format(ZonedDateTime.ofInstant(estimatedStartHours, ZoneOffset.systemDefault())) + " ";
 		} else {
 			value += "|                              ";
 		}
 		if (estimatedStopHours != null) {
-			value += "| arrêt  : " + formatter.format(LocalDateTime.ofInstant(estimatedStopHours, ZoneOffset.UTC))
-					+ " ";
+			value += "| arrêt  : "
+					+ formatter.format(ZonedDateTime.ofInstant(estimatedStopHours, ZoneOffset.systemDefault())) + " ";
 		} else {
 			value += "|                              ";
 		}
