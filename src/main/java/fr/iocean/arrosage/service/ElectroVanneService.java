@@ -52,11 +52,11 @@ public class ElectroVanneService {
 		this.platforms = pi4j.platforms();
 		this.platforms.describe().print(System.out);
 		this.relays = new HashMap<>();
-		this.initPinConfig(1, "portail", 29);
-		this.initPinConfig(2, "piscine", 31);
-		this.initPinConfig(3, "pergolas", 33);
-		this.initPinConfig(4, "vide sanitaire", 34);
-		this.initPinConfig(5, "abris", 35);
+		this.initPinConfig(1, "portail        ", 29);
+		this.initPinConfig(2, "piscine        ", 31);
+		this.initPinConfig(3, "pergolas       ", 33);
+		this.initPinConfig(4, "abris          ", 34);
+		this.initPinConfig(5, "Goutte à goutte", 35);
 	}
 
 	private void initPinConfig(int relay, String zone, int pin) {

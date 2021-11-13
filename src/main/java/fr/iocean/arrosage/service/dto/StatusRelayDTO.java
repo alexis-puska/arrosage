@@ -2,16 +2,17 @@ package fr.iocean.arrosage.service.dto;
 
 import java.io.Serializable;
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 
 import fr.iocean.arrosage.RelayStatusEnum;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 
 @Getter
 @Setter
-@ToString
 @NoArgsConstructor
 public class StatusRelayDTO implements Serializable {
 
@@ -23,4 +24,19 @@ public class StatusRelayDTO implements Serializable {
 	private Long remainingTime;
 	private Instant estimatedStopHours;
 	private Instant estimatedStartHours;
+
+	@Override
+	public String toString() {
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+		String value = id + " " + zone + " : " + Status + "\t";
+		if (estimatedStartHours != null) {
+			value += "départ : " + formatter.format(LocalDateTime.ofInstant(estimatedStartHours, ZoneOffset.UTC))
+					+ "\t";
+		}
+		if (estimatedStopHours != null) {
+			value += "arrêt  : " + formatter.format(LocalDateTime.ofInstant(estimatedStopHours, ZoneOffset.UTC));
+		}
+		return value;
+	}
+
 }
