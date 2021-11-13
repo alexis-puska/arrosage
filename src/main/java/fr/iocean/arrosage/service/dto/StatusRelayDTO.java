@@ -29,7 +29,7 @@ public class StatusRelayDTO implements Serializable {
 
 	public String printInfo() {
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
-		String value = id + " " + zone + " : " + Status + "\t";
+		String value = id + " " + zone + " : " + Status + " \t";
 		if (estimatedStartHours != null) {
 			value += "| départ : " + formatter.format(LocalDateTime.ofInstant(estimatedStartHours, ZoneOffset.UTC))
 					+ " ";
