@@ -235,3 +235,13 @@ To configure CI for your project, run the ci-cd sub-generator (`jhipster ci-cd`)
 [protractor]: https://angular.github.io/protractor/
 [leaflet]: https://leafletjs.com/
 [definitelytyped]: https://definitelytyped.org/
+
+##
+
+installation on raspberry pi
+
+clone and build this library : git clone https://github.com/WiringPi/WiringPi.git
+run ./mvnw package -Pprod -DskipTest
+copy start.sh, stop.sh, target\arrosage.jar into install folder
+copy arrosage in /etc/init.d
+execute : update-rc.d arrosage defaults

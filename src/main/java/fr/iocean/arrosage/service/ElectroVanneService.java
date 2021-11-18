@@ -20,12 +20,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import com.pi4j.Pi4J;
-import com.pi4j.context.Context;
-import com.pi4j.io.gpio.digital.DigitalOutput;
-import com.pi4j.io.gpio.digital.DigitalOutputConfigBuilder;
-import com.pi4j.io.gpio.digital.DigitalState;
-import com.pi4j.platform.Platforms;
+import com.pi4j.io.gpio.GpioController;
+import com.pi4j.io.gpio.GpioFactory;
+import com.pi4j.io.gpio.GpioPinDigitalOutput;
+import com.pi4j.io.gpio.Pin;
+import com.pi4j.io.gpio.PinState;
+import com.pi4j.io.gpio.RaspiPin;
 
 import fr.iocean.arrosage.RelayStatusEnum;
 import fr.iocean.arrosage.config.ApplicationProperties;
@@ -43,8 +43,7 @@ public class ElectroVanneService {
 
 	private final ApplicationProperties applicationProperties;
 	private final ScheduledExecutorService executor;
-	private final Context pi4j;
-	private final Platforms platforms;
+	private final GpioController gpio;
 	private Map<Integer, Relay> relays;
 
 	public ElectroVanneService(ApplicationProperties applicationProperties) {
@@ -52,28 +51,27 @@ public class ElectroVanneService {
 		this.tempsArrosage = this.applicationProperties.getTempsArrosage();
 		this.tempsSecurite = this.applicationProperties.getTempsSecurite();
 		this.executor = Executors.newSingleThreadScheduledExecutor();
-		this.pi4j = Pi4J.newAutoContext();
-		this.platforms = pi4j.platforms();
-		this.platforms.describe().print(System.out);
+		gpio = GpioFactory.getInstance();
 		this.relays = new HashMap<>();
 		this.log.info("+-----------------------------------+");
 		this.log.info("| initialisation relays !           |");
 		this.log.info("+-----------------------------------+");
-		this.initPinConfig(1, "portail        ", 29);
-		this.initPinConfig(2, "piscine        ", 31);
-		this.initPinConfig(3, "pergolas       ", 33);
-		this.initPinConfig(4, "abris          ", 34);
-		this.initPinConfig(5, "Goutte à goutte", 35);
+		this.initPinConfig(1, "portail        ", RaspiPin.GPIO_21);
+		this.initPinConfig(2, "piscine        ", RaspiPin.GPIO_22);
+		this.initPinConfig(3, "pergolas       ", RaspiPin.GPIO_23);
+		this.initPinConfig(4, "abris          ", RaspiPin.GPIO_27);
+		this.initPinConfig(5, "Goutte à goutte", RaspiPin.GPIO_24);
+		//this.initPinConfig(6, "Goutte à goutte", RaspiPin.gpio_28);
+		//this.initPinConfig(7, "Goutte à goutte", RaspiPin.gpio_29);
+		//this.initPinConfig(8, "Goutte à goutte", RaspiPin.gpio_25);
 		this.log.info("+-----------------------------------+");
 		this.log.info("| initialisation relays terminées ! |");
 		this.log.info("+-----------------------------------+");
 
 	}
 
-	private void initPinConfig(int relay, String zone, int pin) {
-		DigitalOutputConfigBuilder ledConfig = DigitalOutput.newConfigBuilder(pi4j).id("relay" + relay)
-				.name("relay" + relay).address(pin).shutdown(DigitalState.LOW).initial(DigitalState.LOW);
-		DigitalOutput conf = pi4j.create(ledConfig);
+	private void initPinConfig(int relay, String zone, Pin pin) {
+		GpioPinDigitalOutput conf = gpio.provisionDigitalOutputPin(pin, "MyLED", PinState.HIGH);
 		this.relays.put(relay, new Relay(relay, zone, conf, null, null, null, null));
 		this.log.info("nouvelle zone : {} {}", relay, zone);
 	}
@@ -83,7 +81,7 @@ public class ElectroVanneService {
 		Instant start = getNextStart();
 		if (start == null) {
 			// allumage immédiat !
-			this.relays.get(id).getConf().high();
+			this.relays.get(id).getConf().low();
 			this.log.info("ouverture immediat vanne : {}", id);
 		} else {
 			start = start.plusMillis(tempsSecurite);
@@ -164,7 +162,7 @@ public class ElectroVanneService {
 			Relay relay = entry.getValue();
 			dto.setId(relay.getId());
 			dto.setZone(entry.getValue().getZone());
-			if (entry.getValue().getConf().isHigh()) {
+			if (entry.getValue().getConf().isLow()) {
 				dto.setRemainingTime(Instant.now().until(relay.getStopHours(), ChronoUnit.MILLIS));
 				dto.setStatus(RelayStatusEnum.ON);
 			} else if (relay.getStartHours() != null) {
@@ -198,7 +196,7 @@ public class ElectroVanneService {
 		relay.setStop(null);
 		relay.setStartHours(null);
 		relay.setStopHours(null);
-		relay.getConf().low();
+		relay.getConf().high();
 	}
 
 	private Instant getNextStart() {
@@ -214,14 +212,14 @@ public class ElectroVanneService {
 	}
 
 	public void openVanneByTask(int id) {
-		this.relays.get(id).getConf().high();
+		this.relays.get(id).getConf().low();
 		this.relays.get(id).setStart(null);
 		this.relays.get(id).setStartHours(null);
 		this.logStatus();
 	}
 
 	public void closeVanneByTask(int id) {
-		this.relays.get(id).getConf().low();
+		this.relays.get(id).getConf().high();
 		this.relays.get(id).setStop(null);
 		this.relays.get(id).setStopHours(null);
 		this.logStatus();
@@ -249,6 +247,6 @@ public class ElectroVanneService {
 
 	@PreDestroy
 	public void destroy() {
-		this.pi4j.shutdown();
+		this.gpio.shutdown();
 	}
 }

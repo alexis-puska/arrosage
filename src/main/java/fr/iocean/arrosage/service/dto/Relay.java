@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.time.Instant;
 import java.util.concurrent.ScheduledFuture;
 
-import com.pi4j.io.gpio.digital.DigitalOutput;
+import com.pi4j.io.gpio.GpioPinDigitalOutput;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -21,7 +21,7 @@ public class Relay implements Serializable {
 
 	private int id;
 	private String zone;
-	private DigitalOutput conf;
+	private GpioPinDigitalOutput conf;
 	private Instant startHours;
 	private ScheduledFuture<?> start;
 	private Instant stopHours;

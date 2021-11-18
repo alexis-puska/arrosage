@@ -1,0 +1,18 @@
+#!/bin/bash
+# MyApp
+#
+# description: arrosage description
+
+case $1 in
+    start)
+        /bin/bash /opt/soft/arrosage/start.sh
+    ;;
+    stop)
+        /bin/bash /opt/soft/arrosage/stop.sh
+    ;;
+    restart)
+        /bin/bash /opt/soft/arrosage/start.sh
+		/bin/bash /opt/soft/arrosage/stop.sh
+    ;;
+esac
+exit 0
