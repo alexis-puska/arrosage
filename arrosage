@@ -1,18 +1,28 @@
-#!/bin/bash
-# MyApp
+#!/bin/sh
+# Start/stop the arrosage daemon.
 #
-# description: arrosage description
+### BEGIN INIT INFO
+# Provides:          arrosage
+# Required-Start:    $remote_fs $syslog $time
+# Required-Stop:     $remote_fs $syslog $time
+# Should-Start:      $network $named slapd autofs ypbind nscd nslcd winbind sssd
+# Should-Stop:       $network $named slapd autofs ypbind nscd nslcd winbind sssd
+# Default-Start:     2 3 4 5
+# Default-Stop:
+# Short-Description: arrosage
+# Description:       arrosage
+### END INIT INFO
 
 case $1 in
     start)
-        /bin/bash /opt/soft/arrosage/start.sh
+        /opt/soft/arrosage/start.sh
     ;;
     stop)
-        /bin/bash /opt/soft/arrosage/stop.sh
+        /opt/soft/arrosage/stop.sh
     ;;
     restart)
-        /bin/bash /opt/soft/arrosage/start.sh
-		/bin/bash /opt/soft/arrosage/stop.sh
+        /opt/soft/arrosage/start.sh
+	/opt/soft/arrosage/stop.sh
     ;;
 esac
 exit 0
