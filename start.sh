@@ -1,3 +1,3 @@
 #!/bin/bash
 
-java -jar arrosage.jar 
+java -jar /opt/soft/arrosage/arrosage.jar 
