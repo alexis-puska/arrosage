@@ -165,3 +165,5 @@ jhipster:
 application:
   temps-arrosage: 300000
   temps-securite: 2000
+  banTime: 3600000
+  maxLoginTry: 5

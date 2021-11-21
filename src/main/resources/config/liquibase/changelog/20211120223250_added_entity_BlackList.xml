@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.9.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    
+    <!--
+        Added the entity BlackList.
+    -->
+    <changeSet id="20211120223250-1" author="jhipster">
+        <createTable tableName="black_list">
+        
+        	<column autoIncrement="true" name="id" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="blackListPk"/>
+            </column>
+            <column name="ip_address" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
+            <column name="locked" type="boolean">
+                <constraints nullable="true" />
+            </column>
+            <column name="unlock_date" type="datetime">
+                <constraints nullable="true" />
+            </column>
+             <column name="last_try" type="datetime">
+                <constraints nullable="true" />
+            </column>
+            <column name="count" type="bigint">
+                <constraints nullable="true" />
+            </column>
+            <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
+        </createTable>
+        <dropDefaultValue tableName="black_list" columnName="unlock_date" columnDataType="datetime"/>
+        <dropDefaultValue tableName="black_list" columnName="last_try" columnDataType="datetime"/>
+    </changeSet>
+</databaseChangeLog>

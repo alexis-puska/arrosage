@@ -20,5 +20,7 @@ public class ApplicationProperties {
 
 	private long tempsArrosage;
 	private long tempsSecurite;
+	private long banTime;
+	private long maxLoginTry;
 
 }

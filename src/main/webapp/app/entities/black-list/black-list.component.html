@@ -1,0 +1,55 @@
+<div>
+    <h2 id="page-heading">
+        <span>Black Lists</span>
+
+        <button id="jh-create-entity" class="btn btn-primary float-right" (click)="reset()">
+            <fa-icon icon="plus"></fa-icon>
+            <span>
+            Refresh
+            </span>
+        </button>
+    </h2>
+
+    <jhi-alert-error></jhi-alert-error>
+
+    <jhi-alert></jhi-alert>
+
+    <div class="alert alert-warning" id="no-result" *ngIf="blackLists?.length === 0">
+        <span>No blackLists found</span>
+    </div>
+
+    <div class="table-responsive" id="entities" *ngIf="blackLists && blackLists.length > 0">
+        <table class="table table-striped" aria-describedby="page-heading">
+            <thead>
+                <tr jhiSort [(predicate)]="predicate" [(ascending)]="ascending" [callback]="reset.bind(this)">
+                    <th scope="col"  jhiSortBy="id"><span>ID</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="ipAddress"><span>Ip Address</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="locked"><span>Locked</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="unlockDate"><span>Unlock Date</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="lastTry"><span>Last Try</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="count"><span>Count</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"></th>
+                </tr>
+            </thead>
+            <tbody infinite-scroll (scrolled)="loadPage(page + 1)" [infiniteScrollDisabled]="page >= links['last']" [infiniteScrollDistance]="0">
+                <tr *ngFor="let blackList of blackLists ;trackBy: trackId">
+                    <td><a [routerLink]="['/black-list', blackList.id, 'view']">{{ blackList.id }}</a></td>
+                    <td>{{ blackList.ipAddress }}</td>
+                    <td>{{ blackList.locked }}</td>
+                    <td>{{ blackList.unlockDate | date:'medium' }}</td>
+                    <td>{{ blackList.lastTry | date:'medium' }}</td>
+                    <td>{{ blackList.count }}</td>
+                    <td class="text-right">
+                        <div class="btn-group">
+                            <button type="submit" (click)="delete(blackList)"
+                                    class="btn btn-danger btn-sm">
+                                <fa-icon icon="times"></fa-icon>
+                                <span class="d-none d-md-inline">Delete</span>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

@@ -9,6 +9,11 @@ import { RouterModule } from '@angular/router';
         data: { pageTitle: 'arrosageApp.projet.home.title' },
         loadChildren: () => import('./electro-vanne/electro-vanne.module').then(m => m.ElectroVanneModule),
       },
+      {
+        path: 'black-list',
+        data: { pageTitle: 'arrosageApp.projet.home.title' },
+        loadChildren: () => import('./black-list/black-list.module').then(m => m.ArrosageBlackListModule),
+      }
     ]),
   ],
 })

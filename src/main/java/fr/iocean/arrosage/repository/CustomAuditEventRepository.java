@@ -1,8 +1,11 @@
 package fr.iocean.arrosage.repository;
 
-import fr.iocean.arrosage.config.Constants;
-import fr.iocean.arrosage.config.audit.AuditEventConverter;
-import fr.iocean.arrosage.domain.PersistentAuditEvent;
+import java.time.Instant;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,9 +14,13 @@ import org.springframework.boot.actuate.audit.AuditEventRepository;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
-import java.time.Instant;
-import java.util.*;
+import fr.iocean.arrosage.config.Constants;
+import fr.iocean.arrosage.config.audit.AuditEventConverter;
+import fr.iocean.arrosage.domain.PersistentAuditEvent;
+import fr.iocean.arrosage.service.BlackListService;
 
 /**
  * An implementation of Spring Boot's {@link AuditEventRepository}.
@@ -32,27 +39,29 @@ public class CustomAuditEventRepository implements AuditEventRepository {
 
     private final AuditEventConverter auditEventConverter;
 
+    private final BlackListService blackListService;
+
     private final Logger log = LoggerFactory.getLogger(getClass());
 
     public CustomAuditEventRepository(PersistenceAuditEventRepository persistenceAuditEventRepository,
-            AuditEventConverter auditEventConverter) {
+            AuditEventConverter auditEventConverter, BlackListService blackListService) {
 
         this.persistenceAuditEventRepository = persistenceAuditEventRepository;
         this.auditEventConverter = auditEventConverter;
+        this.blackListService = blackListService;
     }
 
     @Override
     public List<AuditEvent> find(String principal, Instant after, String type) {
-        Iterable<PersistentAuditEvent> persistentAuditEvents =
-            persistenceAuditEventRepository.findByPrincipalAndAuditEventDateAfterAndAuditEventType(principal, after, type);
+        Iterable<PersistentAuditEvent> persistentAuditEvents = persistenceAuditEventRepository
+                .findByPrincipalAndAuditEventDateAfterAndAuditEventType(principal, after, type);
         return auditEventConverter.convertToAuditEvent(persistentAuditEvents);
     }
 
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void add(AuditEvent event) {
-        if (!AUTHORIZATION_FAILURE.equals(event.getType()) &&
-            !Constants.ANONYMOUS_USER.equals(event.getPrincipal())) {
+        if (!AUTHORIZATION_FAILURE.equals(event.getType()) && !Constants.ANONYMOUS_USER.equals(event.getPrincipal())) {
 
             PersistentAuditEvent persistentAuditEvent = new PersistentAuditEvent();
             persistentAuditEvent.setPrincipal(event.getPrincipal());
@@ -61,6 +70,11 @@ public class CustomAuditEventRepository implements AuditEventRepository {
             Map<String, String> eventData = auditEventConverter.convertDataToStrings(event.getData());
             persistentAuditEvent.setData(truncate(eventData));
             persistenceAuditEventRepository.save(persistentAuditEvent);
+            if (event.getType().equals("AUTHENTICATION_FAILURE")) {
+                HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder
+                        .currentRequestAttributes()).getRequest();
+                this.blackListService.updateLastTry(request.getRemoteAddr());
+            }
         }
     }
 
@@ -77,8 +91,9 @@ public class CustomAuditEventRepository implements AuditEventRepository {
                     int length = value.length();
                     if (length > EVENT_DATA_COLUMN_MAX_LENGTH) {
                         value = value.substring(0, EVENT_DATA_COLUMN_MAX_LENGTH);
-                        log.warn("Event data for {} too long ({}) has been truncated to {}. Consider increasing column width.",
-                                 entry.getKey(), length, EVENT_DATA_COLUMN_MAX_LENGTH);
+                        log.warn(
+                                "Event data for {} too long ({}) has been truncated to {}. Consider increasing column width.",
+                                entry.getKey(), length, EVENT_DATA_COLUMN_MAX_LENGTH);
                     }
                 }
                 results.put(entry.getKey(), value);
