@@ -5,6 +5,8 @@ import fr.iocean.arrosage.ArrosageApp;
 import fr.iocean.arrosage.config.Constants;
 import fr.iocean.arrosage.config.audit.AuditEventConverter;
 import fr.iocean.arrosage.domain.PersistentAuditEvent;
+import fr.iocean.arrosage.service.BlackListService;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,12 +39,15 @@ public class CustomAuditEventRepositoryIT {
 
     @Autowired
     private AuditEventConverter auditEventConverter;
+    
+    @Autowired
+    private BlackListService blackListService;
 
     private CustomAuditEventRepository customAuditEventRepository;
 
     @BeforeEach
     public void setup() {
-        customAuditEventRepository = new CustomAuditEventRepository(persistenceAuditEventRepository, auditEventConverter);
+        customAuditEventRepository = new CustomAuditEventRepository(persistenceAuditEventRepository, auditEventConverter, blackListService);
         persistenceAuditEventRepository.deleteAll();
         Instant oneHourAgo = Instant.now().minusSeconds(3600);
 

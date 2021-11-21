@@ -3,6 +3,8 @@ package fr.iocean.arrosage.service.dto;
 import java.io.Serializable;
 import java.time.ZonedDateTime;
 
+import fr.iocean.arrosage.domain.BlackList;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -12,6 +14,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
+@EqualsAndHashCode
 @NoArgsConstructor
 public class BlackListDTO implements Serializable {
 
