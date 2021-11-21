@@ -44,46 +44,6 @@ public class BlackListResource {
     }
 
     /**
-     * {@code POST  /black-lists} : Create a new blackList.
-     *
-     * @param blackListDTO the blackListDTO to create.
-     * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new blackListDTO, or with status {@code 400 (Bad Request)} if the blackList has already an ID.
-     * @throws URISyntaxException if the Location URI syntax is incorrect.
-     */
-    @PostMapping("/black-lists")
-    public ResponseEntity<BlackListDTO> createBlackList(@RequestBody BlackListDTO blackListDTO) throws URISyntaxException {
-        log.debug("REST request to save BlackList : {}", blackListDTO);
-        if (blackListDTO.getId() != null) {
-            throw new BadRequestAlertException("A new blackList cannot already have an ID", ENTITY_NAME, "idexists");
-        }
-        BlackListDTO result = blackListService.save(blackListDTO);
-        return ResponseEntity.created(new URI("/api/black-lists/" + result.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert(applicationName, false, ENTITY_NAME, result.getId().toString()))
-            .body(result);
-    }
-
-    /**
-     * {@code PUT  /black-lists} : Updates an existing blackList.
-     *
-     * @param blackListDTO the blackListDTO to update.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated blackListDTO,
-     * or with status {@code 400 (Bad Request)} if the blackListDTO is not valid,
-     * or with status {@code 500 (Internal Server Error)} if the blackListDTO couldn't be updated.
-     * @throws URISyntaxException if the Location URI syntax is incorrect.
-     */
-    @PutMapping("/black-lists")
-    public ResponseEntity<BlackListDTO> updateBlackList(@RequestBody BlackListDTO blackListDTO) throws URISyntaxException {
-        log.debug("REST request to update BlackList : {}", blackListDTO);
-        if (blackListDTO.getId() == null) {
-            throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
-        }
-        BlackListDTO result = blackListService.save(blackListDTO);
-        return ResponseEntity.ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, blackListDTO.getId().toString()))
-            .body(result);
-    }
-
-    /**
      * {@code GET  /black-lists} : get all the blackLists.
      *
      * @param pageable the pagination information.
@@ -95,19 +55,6 @@ public class BlackListResource {
         Page<BlackListDTO> page = blackListService.findAll(pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
-    }
-
-    /**
-     * {@code GET  /black-lists/:id} : get the "id" blackList.
-     *
-     * @param id the id of the blackListDTO to retrieve.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the blackListDTO, or with status {@code 404 (Not Found)}.
-     */
-    @GetMapping("/black-lists/{id}")
-    public ResponseEntity<BlackListDTO> getBlackList(@PathVariable Long id) {
-        log.debug("REST request to get BlackList : {}", id);
-        Optional<BlackListDTO> blackListDTO = blackListService.findOne(id);
-        return ResponseUtil.wrapOrNotFound(blackListDTO);
     }
 
     /**

@@ -39,19 +39,6 @@ public class BlackListService {
 	}
 
 	/**
-	 * Save a blackList.
-	 *
-	 * @param blackListDTO the entity to save.
-	 * @return the persisted entity.
-	 */
-	public BlackListDTO save(BlackListDTO blackListDTO) {
-		log.debug("Request to save BlackList : {}", blackListDTO);
-		BlackList blackList = blackListMapper.toEntity(blackListDTO);
-		blackList = blackListRepository.save(blackList);
-		return blackListMapper.toDto(blackList);
-	}
-
-	/**
 	 * Get all the blackLists.
 	 *
 	 * @param pageable the pagination information.
@@ -61,18 +48,6 @@ public class BlackListService {
 	public Page<BlackListDTO> findAll(Pageable pageable) {
 		log.debug("Request to get all BlackLists");
 		return blackListRepository.findAll(pageable).map(blackListMapper::toDto);
-	}
-
-	/**
-	 * Get one blackList by id.
-	 *
-	 * @param id the id of the entity.
-	 * @return the entity.
-	 */
-	@Transactional(readOnly = true)
-	public Optional<BlackListDTO> findOne(Long id) {
-		log.debug("Request to get BlackList : {}", id);
-		return blackListRepository.findById(id).map(blackListMapper::toDto);
 	}
 
 	/**
