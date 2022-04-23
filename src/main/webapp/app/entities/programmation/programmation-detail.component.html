@@ -1,0 +1,42 @@
+<div class="row justify-content-center">
+    <div class="col-8">
+        <div *ngIf="programmation">
+            <h2><span>Programmation</span> {{ programmation.id }}</h2>
+
+            <hr>
+
+            <jhi-alert-error></jhi-alert-error>
+
+            <dl class="row-md jh-entity-details">
+                <dt><span>Date</span></dt>
+                <dd>
+                    <span>{{ programmation.date }}</span>
+                </dd>
+                <dt><span>Day</span></dt>
+                <dd>
+                    <span>{{ programmation.day }}</span>
+                </dd>
+                <dt><span>Sequence</span></dt>
+                <dd>
+                    <span>{{ programmation.sequence }}</span>
+                </dd>
+                <dt><span>Counter</span></dt>
+                <dd>
+                    <span>{{ programmation.counter }}</span>
+                </dd>
+            </dl>
+
+            <button type="submit"
+                    (click)="previousState()"
+                    class="btn btn-info">
+                <fa-icon icon="arrow-left"></fa-icon>&nbsp;<span>Back</span>
+            </button>
+
+            <button type="button"
+                    [routerLink]="['/programmation', programmation.id, 'edit']"
+                    class="btn btn-primary">
+                <fa-icon icon="pencil-alt"></fa-icon>&nbsp;<span>Edit</span>
+            </button>
+        </div>
+    </div>
+</div>

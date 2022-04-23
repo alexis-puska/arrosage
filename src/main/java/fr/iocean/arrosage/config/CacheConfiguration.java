@@ -49,6 +49,7 @@ public class CacheConfiguration {
             createCache(cm, fr.iocean.arrosage.domain.Authority.class.getName());
             createCache(cm, fr.iocean.arrosage.domain.User.class.getName() + ".authorities");
             createCache(cm, fr.iocean.arrosage.domain.BlackList.class.getName());
+            createCache(cm, fr.iocean.arrosage.domain.Programmation.class.getName());
             // jhipster-needle-ehcache-add-entry
         };
     }

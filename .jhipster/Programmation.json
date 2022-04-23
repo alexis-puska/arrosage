@@ -1,0 +1,37 @@
+{
+  "fluentMethods": true,
+  "clientRootFolder": "",
+  "relationships": [],
+  "fields": [
+    {
+      "fieldName": "date",
+      "fieldType": "ZonedDateTime",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "day",
+      "fieldType": "Integer",
+      "fieldValidateRules": ["required", "max"],
+      "fieldValidateRulesMax": "30"
+    },
+    {
+      "fieldName": "sequence",
+      "fieldType": "String",
+      "fieldValidateRules": ["required", "pattern"],
+      "fieldValidateRulesPattern": "^(?!,$)[\\d,]+$"
+    },
+    {
+      "fieldName": "counter",
+      "fieldType": "Integer"
+    }
+  ],
+  "changelogDate": "20220423174245",
+  "dto": "mapstruct",
+  "searchEngine": false,
+  "service": "serviceClass",
+  "entityTableName": "programmation",
+  "databaseType": "sql",
+  "readOnly": false,
+  "jpaMetamodelFiltering": false,
+  "pagination": "infinite-scroll"
+}

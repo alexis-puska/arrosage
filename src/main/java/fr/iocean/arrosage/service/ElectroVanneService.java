@@ -5,6 +5,7 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,6 +31,7 @@ import com.pi4j.io.gpio.RaspiPin;
 import fr.iocean.arrosage.RelayStatusEnum;
 import fr.iocean.arrosage.config.ApplicationProperties;
 import fr.iocean.arrosage.service.dto.Relay;
+import fr.iocean.arrosage.service.dto.RelayDTO;
 import fr.iocean.arrosage.service.dto.StatusRelayDTO;
 
 @Service
@@ -224,6 +226,14 @@ public class ElectroVanneService {
 		this.relays.get(id).setStopHours(null);
 		this.logStatus();
 	}
+
+    public List<RelayDTO> getListRelay() {
+        List<RelayDTO> info = this.relays.values().stream().map(relay -> {
+            return new RelayDTO(relay.getId(), relay.getZone());
+        }).collect(Collectors.toList());
+        Collections.sort(info);
+        return info;
+    }
 
 	private void logStatus() {
 		log.info("+------------------------------------------------------------------------------------------------+");

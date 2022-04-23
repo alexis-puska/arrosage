@@ -1,6 +1,7 @@
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { SERVER_API_URL } from 'app/app.constants';
+import { Relay } from 'app/shared/model/relay.model';
 import { Observable } from 'rxjs';
 import { StatusRelay } from './status-relay.model';
 
@@ -32,5 +33,9 @@ export class ElectroVanneService {
 
   cancelAll(): Observable<void> {
     return this.http.get<void>(`${this.resourceUrl}/cancel-all`);
+  }
+
+  listRelay(): Observable<Relay[]> {
+    return this.http.get<Relay[]>(`${this.resourceUrl}/list-relay`);
   }
 }

@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import fr.iocean.arrosage.service.ElectroVanneService;
+import fr.iocean.arrosage.service.dto.RelayDTO;
 import fr.iocean.arrosage.service.dto.StatusRelayDTO;
 
 /**
@@ -57,8 +58,14 @@ public class ElectroVanneResource {
 	}
 
 	@GetMapping("/electro-vanne/cancel-all")
-	public void cancelAll() {
-		this.log.info("Eteindre toutes les zones");
-		this.electroVanneService.cancelAll();
-	}
+    public void cancelAll() {
+        this.log.info("Eteindre toutes les zones");
+        this.electroVanneService.cancelAll();
+    }
+	
+	@GetMapping("/electro-vanne/list-relay")
+    public List<RelayDTO> getListRelay() {
+        this.log.info("get liste relay");
+        return this.electroVanneService.getListRelay();
+    }
 }
