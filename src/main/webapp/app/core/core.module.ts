@@ -7,6 +7,9 @@ import { CookieService } from 'ngx-cookie-service';
 import { NgxWebstorageModule } from 'ngx-webstorage';
 import { NgJhipsterModule } from 'ng-jhipster';
 import locale from '@angular/common/locales/en';
+import { fab } from '@fortawesome/free-brands-svg-icons';
+import { far } from '@fortawesome/free-regular-svg-icons';
+import { fas } from '@fortawesome/free-solid-svg-icons';
 
 import * as moment from 'moment';
 import { NgbDateAdapter, NgbDatepickerConfig } from '@ng-bootstrap/ng-bootstrap';
@@ -16,8 +19,6 @@ import { AuthInterceptor } from 'app/blocks/interceptor/auth.interceptor';
 import { AuthExpiredInterceptor } from 'app/blocks/interceptor/auth-expired.interceptor';
 import { ErrorHandlerInterceptor } from 'app/blocks/interceptor/errorhandler.interceptor';
 import { NotificationInterceptor } from 'app/blocks/interceptor/notification.interceptor';
-
-import { fontAwesomeIcons } from './icons/font-awesome-icons';
 
 @NgModule({
   imports: [
@@ -63,7 +64,7 @@ import { fontAwesomeIcons } from './icons/font-awesome-icons';
 export class ArrosageCoreModule {
   constructor(iconLibrary: FaIconLibrary, dpConfig: NgbDatepickerConfig) {
     registerLocaleData(locale);
-    iconLibrary.addIcons(...fontAwesomeIcons);
+    iconLibrary.addIconPacks(far, fas, fab);
     dpConfig.minDate = { year: moment().year() - 100, month: 1, day: 1 };
   }
 }

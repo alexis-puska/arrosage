@@ -1,20 +1,67 @@
 <div class="row">
     <div class="col-md">
-        <h1 class="display-4">Welcome, Java Hipster!</h1>
-        <p class="lead">This is your homepage</p>
+        <h1 class="display-4">Arrosage!</h1>
         <div [ngSwitch]="isAuthenticated()">
-            <div class="alert alert-success" *ngSwitchCase="true">
-                <span id="home-logged-message" *ngIf="account">You are logged in as user "{{ account.login }}".</span>
+            <div *ngSwitchCase="true">
 
-                <a routerLink="electro-vanne" routerLinkActive="active">
-                    <span>Arrosage</span>
-                </a>
+                <div class="alert alert-success">
+                    <span id="home-logged-message" *ngIf="account">You are logged in as user "{{ account.login
+                        }}".</span>
+                </div>
+                <div class="row">
 
+                    <div class="col-md-4">
+                        <div class="card text-center">
+                            <div class="card-header">
+                                Arrosage
+                            </div>
+                            <div class="card-body">
+                                <h3 *ngIf="metric">{{metric.zone}} zone(s)</h3>
+                                <button class="btn btn-primary" routerLink="electro-vanne" routerLinkActive="active">
+                                    <fa-icon [icon]="['fas', 'spray-can']"></fa-icon>
+                                    <span>Zone</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="card text-center">
+                            <div class="card-header">
+                                Programmation
+                            </div>
+                            <div class="card-body">
+                                <h3 *ngIf="metric">{{metric.programmation}} prog(s)</h3>
+                                <button class="btn btn-primary" routerLink="programmation" routerLinkActive="active">
+                                    <fa-icon [icon]="['fas', 'clock']"></fa-icon>
+                                    <span>Liste</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="card text-center">
+                            <div class="card-header">
+                                Ban
+                            </div>
+                            <div class="card-body">
+                                <h3 *ngIf="metric">{{metric.blackList}} banni(s)</h3>
+                                <button class="btn btn-primary" routerLink="black-list" routerLinkActive="active">
+                                    <fa-icon [icon]="['fas', 'ban']"></fa-icon>
+                                    <span>Ban liste</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
             </div>
 
             <div class="alert alert-warning" *ngSwitchCase="false">
                 <a class="alert-link" (click)="login()">Se connecter</a>
             </div>
+
         </div>
     </div>
 </div>
