@@ -58,14 +58,9 @@ public class ElectroVanneService {
 		this.log.info("+-----------------------------------+");
 		this.log.info("| initialisation relays !           |");
 		this.log.info("+-----------------------------------+");
-		this.initPinConfig(1, "portail        ", RaspiPin.GPIO_21);
-		this.initPinConfig(2, "piscine        ", RaspiPin.GPIO_22);
-		this.initPinConfig(3, "pergolas       ", RaspiPin.GPIO_23);
-		this.initPinConfig(4, "abris          ", RaspiPin.GPIO_27);
-		this.initPinConfig(5, "Goutte à goutte", RaspiPin.GPIO_24);
-		//this.initPinConfig(6, "Goutte à goutte", RaspiPin.gpio_28);
-		//this.initPinConfig(7, "Goutte à goutte", RaspiPin.gpio_29);
-		//this.initPinConfig(8, "Goutte à goutte", RaspiPin.gpio_25);
+		applicationProperties.getRelays().stream().forEach(relay -> {
+		    this.initPinConfig(relay.getRelay(), relay.getZone(), RaspiPin.getPinByAddress(relay.getPin()));
+		});
 		this.log.info("+-----------------------------------+");
 		this.log.info("| initialisation relays terminées ! |");
 		this.log.info("+-----------------------------------+");

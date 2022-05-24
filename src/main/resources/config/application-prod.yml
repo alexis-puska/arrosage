@@ -135,3 +135,31 @@ application:
   temps-securite: 2000
   banTime: 3600000
   maxLoginTry: 5
+  relays:
+    - relay: 1
+      zone: 'portail        '
+      pin: 21
+    - relay: 2
+      zone: 'piscine        '
+      pin: 21
+    - relay: 3
+      zone: 'pergolas       '
+      pin: 21
+    - relay: 4
+      zone: 'abris          '
+      pin: 21
+    - relay: 5
+      zone: 'Goutte à goutte'
+      pin: 21
+#    -
+#      relay: 6
+#      zone: "Goutte à goutte"
+#      pin: 21
+#    -
+#      relay: 7
+#      zone: "Goutte à goutte"
+#      pin: 21
+#    -
+#      relay: 8
+#      zone: "Goutte à goutte"
+#      pin: 21

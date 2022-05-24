@@ -1,5 +1,7 @@
 package fr.iocean.arrosage.config;
 
+import java.util.List;
+
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import lombok.Getter;
@@ -22,5 +24,5 @@ public class ApplicationProperties {
 	private long tempsSecurite;
 	private long banTime;
 	private long maxLoginTry;
-
+	private List<RelayProperties> relays;
 }
