@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { CountdownConfig } from 'ngx-countdown';
 import { Subscription, timer } from 'rxjs';
 import { ElectroVanneService } from '../../core/electro-vanne/electro-vanne.service';
 import { StatusRelay } from './../../core/electro-vanne/status-relay.model';
@@ -11,6 +12,7 @@ export class ElectroVanneComponent implements OnInit {
   relays: StatusRelay[] | null;
   timers: Subscription[] = [];
   lockProlongation: boolean;
+  countdown: Map<number, CountdownConfig> = new Map();
 
   constructor(private electroVanneService: ElectroVanneService) {
     this.relays = [];
@@ -32,7 +34,9 @@ export class ElectroVanneComponent implements OnInit {
       this.relays = [];
       this.relays = relays.body;
       this.relays?.forEach(r => {
+        this.countdown.delete(r.id);
         if (r.remainingTime && r.remainingTime > 0) {
+          this.countdown.set(r.id, this.createCountDownConfig(r.remainingTime));
           const t = timer(r.remainingTime + 500);
           this.timers.push(
             t.subscribe(() => {
@@ -50,6 +54,25 @@ export class ElectroVanneComponent implements OnInit {
         }
       });
     });
+  }
+
+  createCountDownConfig(remainingTime: number): CountdownConfig {
+    const config: CountdownConfig = {};
+    config.leftTime = remainingTime / 1000;
+    config.format = 'HH:mm:ss';
+    return config;
+  }
+
+  getCountdownConfig(relayId: number): CountdownConfig {
+    const config = this.countdown.get(relayId);
+    if (config) {
+      return config;
+    }
+    return {};
+  }
+
+  hasCountdownConfig(relayId: number): boolean {
+    return this.countdown.has(relayId);
   }
 
   open(id: number): void {

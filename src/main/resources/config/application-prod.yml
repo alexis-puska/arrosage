@@ -141,25 +141,25 @@ application:
       pin: 21
     - relay: 2
       zone: 'piscine        '
-      pin: 21
+      pin: 22
     - relay: 3
       zone: 'pergolas       '
-      pin: 21
+      pin: 23
     - relay: 4
       zone: 'abris          '
-      pin: 21
+      pin: 27
     - relay: 5
       zone: 'Goutte à goutte'
-      pin: 21
+      pin: 24
 #    -
 #      relay: 6
 #      zone: "Goutte à goutte"
-#      pin: 21
+#      pin: 28
 #    -
 #      relay: 7
 #      zone: "Goutte à goutte"
-#      pin: 21
+#      pin: 29
 #    -
 #      relay: 8
 #      zone: "Goutte à goutte"
-#      pin: 21
+#      pin: 25

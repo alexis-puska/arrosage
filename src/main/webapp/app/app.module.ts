@@ -13,6 +13,7 @@ import { NavbarComponent } from './layouts/navbar/navbar.component';
 import { FooterComponent } from './layouts/footer/footer.component';
 import { PageRibbonComponent } from './layouts/profiles/page-ribbon.component';
 import { ErrorComponent } from './layouts/error/error.component';
+import { CountdownModule } from 'ngx-countdown';
 
 @NgModule({
   imports: [
@@ -20,6 +21,7 @@ import { ErrorComponent } from './layouts/error/error.component';
     ArrosageSharedModule,
     ArrosageCoreModule,
     ArrosageHomeModule,
+    CountdownModule,
     // jhipster-needle-angular-add-module JHipster will add new module here
     ArrosageEntityModule,
     ArrosageAppRoutingModule,

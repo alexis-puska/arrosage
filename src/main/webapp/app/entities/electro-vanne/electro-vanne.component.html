@@ -17,8 +17,8 @@
                 <tr>
                     <th scope="col"><span>Zone</span></th>
                     <th scope="col"><span>Status</span></th>
-                    <th scope="col"><span>Heure ON</span></th>
-                    <th scope="col"><span>Heure OFF</span></th>
+                    <th scope="col"><span>Heure</span></th>
+                    <th scope="col"><span>Restant</span></th>
                     <th scope="col"><span></span></th>
                 </tr>
             </thead>
@@ -30,8 +30,12 @@
                         <span *ngIf="relay.status === 'OFF'" class="badge badge-danger">OFF</span>
                         <span *ngIf="relay.status === 'WAIT'" class="badge badge-info">WAIT</span>
                     </td>
-                    <td>{{ relay.estimatedStartHours | date:'dd/MM/yy HH:mm:ss' }}</td>
-                    <td>{{ relay.estimatedStopHours | date:'dd/MM/yy HH:mm:ss' }}</td>
+                    <td>{{ relay.estimatedStartHours | date:'dd/MM/yy HH:mm:ss' }}<br/>{{ relay.estimatedStopHours | date:'dd/MM/yy HH:mm:ss' }}</td>
+                    <td>
+                        <ng-container *ngIf="relay.status === 'ON' && hasCountdownConfig(relay.id)">
+                            <fa-icon [icon]="['fas','clock']"></fa-icon>&nbsp;<countdown [config]="getCountdownConfig(relay.id)" ></countdown>
+                        </ng-container>
+                    </td>
                     <td>
                         <button class="btn btn-success btn-sm" (click)="open(relay.id)"
                             *ngIf="relay.status === 'OFF'">Allumer</button>
