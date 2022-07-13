@@ -22,9 +22,10 @@ export class ProgrammationUpdateComponent implements OnInit {
   editForm = this.fb.group({
     id: [],
     date: [null, [Validators.required]],
-    day: [null, [Validators.required, Validators.max(30)]],
+    day: [1, [Validators.required, Validators.max(30), Validators.min(1)]],
     sequence: [null, [Validators.required, Validators.pattern('^(?!,$)[\\d,]+$')]],
     counter: [],
+    dayFrequency: [1, [Validators.required, Validators.max(30), Validators.min(1)]],
   });
 
   constructor(protected programmationService: ProgrammationService, protected activatedRoute: ActivatedRoute, private fb: FormBuilder) {}
@@ -48,6 +49,7 @@ export class ProgrammationUpdateComponent implements OnInit {
       day: programmation.day,
       sequence: programmation.sequence,
       counter: programmation.counter,
+      dayFrequency: programmation.dayFrequency,
     });
   }
 
@@ -101,6 +103,7 @@ export class ProgrammationUpdateComponent implements OnInit {
       day: this.editForm.get(['day'])!.value,
       sequence: this.editForm.get(['sequence'])!.value,
       counter: this.editForm.get(['counter'])!.value,
+      dayFrequency: this.editForm.get(['dayFrequency'])!.value,
     };
   }
 

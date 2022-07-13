@@ -3,6 +3,7 @@ package fr.iocean.arrosage.service;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -97,43 +98,43 @@ public class ProgrammationService {
         LocalDateTime localDateTime = LocalDateTime.ofInstant(now.toInstant(), ZoneOffset.UTC);
         List<Programmation> programmations = this.programmationRepository
                 .getProgrammationByHourAndMinute(localDateTime.getHour(), localDateTime.getMinute());
-        programmations.stream().forEach(programmation -> {
-            String sequence = programmation.getSequence();
-            List<Integer> relayIds = new ArrayList<>(Arrays.asList(sequence.split(","))).stream()
-                    .map(id -> Integer.parseInt(id)).collect(Collectors.toList());
-
-            List<Integer> toStart = new ArrayList<>();
-            List<Integer> toProlong = new ArrayList<>();
-
-            relayIds.stream().forEach(id -> {
-                if (toStart.contains(id)) {
-                    toProlong.add(id);
-                } else {
-                    toStart.add(id);
-                }
-            });
-
-            toStart.stream().forEach(id -> {
-                log.info("cron start avec id : {}", id);
-                this.electroVanneService.openVanneScheduled(id);
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException e) {
-                }
-            });
-
-            toProlong.stream().forEach(id -> {
-                log.info("cron prolongation avec id : {}", id);
-                this.electroVanneService.addTime(id);
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException e) {
-                }
-            });
-
-        });
         programmations = programmations.stream().map(programmation -> {
-            programmation.setCounter(programmation.getCounter() != null ? programmation.getCounter() + 1 : 1);
+            if(ZonedDateTime.now().until(programmation.getDate(), ChronoUnit.DAYS) % programmation.getDayFrequency() == 0) {
+                System.out.println("je me lance");
+                String sequence = programmation.getSequence();
+                List<Integer> relayIds = new ArrayList<>(Arrays.asList(sequence.split(","))).stream()
+                        .map(id -> Integer.parseInt(id)).collect(Collectors.toList());
+    
+                List<Integer> toStart = new ArrayList<>();
+                List<Integer> toProlong = new ArrayList<>();
+    
+                relayIds.stream().forEach(id -> {
+                    if (toStart.contains(id)) {
+                        toProlong.add(id);
+                    } else {
+                        toStart.add(id);
+                    }
+                });
+    
+                toStart.stream().forEach(id -> {
+                    log.info("cron start avec id : {}", id);
+                    this.electroVanneService.openVanneScheduled(id);
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException e) {
+                    }
+                });
+    
+                toProlong.stream().forEach(id -> {
+                    log.info("cron prolongation avec id : {}", id);
+                    this.electroVanneService.addTime(id);
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException e) {
+                    }
+                });
+                programmation.setCounter(programmation.getCounter() != null ? programmation.getCounter() + 1 : 1);
+            }
             return programmation;
         }).collect(Collectors.toList());
         this.programmationRepository.saveAll(programmations);

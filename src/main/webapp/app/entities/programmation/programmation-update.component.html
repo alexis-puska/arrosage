@@ -40,7 +40,30 @@
                         <small class="form-text text-danger" *ngIf="editForm.get('day')?.errors?.max">
                             This field cannot be more than 30.
                         </small>
+                        <small class="form-text text-danger" *ngIf="editForm.get('day')?.errors?.min">
+                            This field cannot be less than 1.
+                        </small>
                         <small class="form-text text-danger" [hidden]="!editForm.get('day')?.errors?.number">
+                            This field should be a number.
+                        </small>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-control-label" for="field_dayFrequency">day frequency</label>
+                    <input type="number" class="form-control" name="dayFrequency" id="field_dayFrequency" formControlName="dayFrequency" />
+                    <div
+                        *ngIf="editForm.get('dayFrequency')!.invalid && (editForm.get('dayFrequency')!.dirty || editForm.get('dayFrequency')!.touched)">
+                        <small class="form-text text-danger" *ngIf="editForm.get('dayFrequency')?.errors?.required">
+                            This field is required.
+                        </small>
+                        <small class="form-text text-danger" *ngIf="editForm.get('dayFrequency')?.errors?.max">
+                            This field cannot be more than 30.
+                        </small>
+                        <small class="form-text text-danger" *ngIf="editForm.get('dayFrequency')?.errors?.min">
+                            This field cannot be less than 1.
+                        </small>
+                        <small class="form-text text-danger" [hidden]="!editForm.get('dayFrequency')?.errors?.number">
                             This field should be a number.
                         </small>
                     </div>

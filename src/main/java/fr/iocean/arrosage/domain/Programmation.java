@@ -40,6 +40,12 @@ public class Programmation implements Serializable {
 
     @Column(name = "counter")
     private Integer counter;
+    
+    @NotNull
+    @Max(value = 30)
+    @Min(value = 1)
+    @Column(name = "day_frequency", nullable = false)
+    private Integer dayFrequency;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
     public Long getId() {
@@ -103,6 +109,14 @@ public class Programmation implements Serializable {
     }
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
 
+    public Integer getDayFrequency() {
+        return dayFrequency;
+    }
+
+    public void setDayFrequency(Integer dayFrequency) {
+        this.dayFrequency = dayFrequency;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -128,6 +142,7 @@ public class Programmation implements Serializable {
             ", day=" + getDay() +
             ", sequence='" + getSequence() + "'" +
             ", counter=" + getCounter() +
+            ", dayFrequency=" + getDayFrequency() +
             "}";
     }
 }

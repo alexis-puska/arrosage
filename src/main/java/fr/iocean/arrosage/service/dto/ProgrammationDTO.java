@@ -28,6 +28,8 @@ public class ProgrammationDTO implements Serializable {
     private String sequence;
 
     private Integer counter;
+    
+    private Integer dayFrequency;
 
     public Long getId() {
         return id;
@@ -69,6 +71,14 @@ public class ProgrammationDTO implements Serializable {
         this.counter = counter;
     }
 
+    public Integer getDayFrequency() {
+        return dayFrequency;
+    }
+
+    public void setDayFrequency(Integer dayFrequency) {
+        this.dayFrequency = dayFrequency;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -90,6 +100,6 @@ public class ProgrammationDTO implements Serializable {
     @Override
     public String toString() {
         return "ProgrammationDTO{" + "id=" + getId() + ", date='" + getDate() + "'" + ", day=" + getDay()
-                + ", sequence='" + getSequence() + "'" + ", counter=" + getCounter() + "}";
+                + ", sequence='" + getSequence() + "'" + ", counter=" + getCounter()+ ", dayFrequency=" + getDayFrequency() + "}";
     }
 }

@@ -25,6 +25,7 @@
                     <th scope="col"  jhiSortBy="id"><span>ID</span> <fa-icon icon="sort"></fa-icon></th>
                     <th scope="col"  jhiSortBy="date"><span>Date</span> <fa-icon icon="sort"></fa-icon></th>
                     <th scope="col"  jhiSortBy="day"><span>Day</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="dayFrequency"><span>Day frequency</span> <fa-icon icon="sort"></fa-icon></th>
                     <th scope="col"  jhiSortBy="sequence"><span>Sequence</span> <fa-icon icon="sort"></fa-icon></th>
                     <th scope="col"  jhiSortBy="counter"><span>Counter</span> <fa-icon icon="sort"></fa-icon></th>
                     <th scope="col"></th>
@@ -35,6 +36,7 @@
                     <td><a [routerLink]="['/programmation', programmation.id, 'view']">{{ programmation.id }}</a></td>
                     <td>{{ programmation.date | date:'medium' }}</td>
                     <td>{{ programmation.day }}</td>
+                    <td>{{ programmation.dayFrequency }}</td>
                     <td>{{ programmation.sequence }}</td>
                     <td>{{ programmation.counter }}</td>
                     <td class="text-right">
